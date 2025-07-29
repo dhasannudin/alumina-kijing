@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Analisis Trucking</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #3b82f6;
+            transition: transform 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stat-card.success {
+            border-left-color: #10b981;
+        }
+        
+        .stat-card.warning {
+            border-left-color: #f59e0b;
+        }
+        
+        .stat-card.danger {
+            border-left-color: #ef4444;
+        }
+        
+        .stat-title {
+            font-size: 0.9em;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value.success {
+            color: #10b981;
+        }
+        
+        .stat-value.warning {
+            color: #f59e0b;
+        }
+        
+        .stat-value.danger {
+            color: #ef4444;
+        }
+        
+        .stat-subtitle {
+            font-size: 0.8em;
+            color: #64748b;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background-color: #e2e8f0;
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-fill.success {
+            background-color: #10b981;
+        }
+        
+        .progress-fill.warning {
+            background-color: #f59e0b;
+        }
+        
+        .progress-fill.danger {
+            background-color: #ef4444;
+        }
+        
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chart-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #1e293b;
+        }
+        
+        .chart-canvas {
+            max-height: 400px;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background: #f1f5f9;
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .table-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #1e293b;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
+        }
+        
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.9em;
+        }
+        
+        td {
+            font-size: 0.9em;
+        }
+        
+        tr:hover {
+            background-color: #f8fafc;
+        }
+        
+        .truck-id {
+            font-weight: bold;
+            color: #3b82f6;
+        }
+        
+        .performance-good {
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        .performance-average {
+            color: #f59e0b;
+            font-weight: bold;
+        }
+        
+        .performance-poor {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        
+        .time-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+            font-weight: bold;
+        }
+        
+        .time-danger {
+            background-color: #fecaca;
+            color: #991b1b;
+            font-weight: bold;
+        }
+        
+        .highlight-total {
+            background-color: #fef3c7 !important;
+            font-weight: bold;
+        }
+        
+        .highlight-summary {
+            background-color: #ddd6fe !important;
+            font-weight: bold;
+        }
+        
+        .tab-container {
+            margin-bottom: 20px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            background: white;
+            border-radius: 8px;
+            padding: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .tab-button.active {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🚛 Dashboard Analisis Trucking</h1>
+            <p>Monitoring Operasional & Performa Truk - Juli 2024</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card success">
+                <div class="stat-title">Total Truk Aktif</div>
+                <div class="stat-value success">17</div>
+                <div class="stat-subtitle">Truk operasional 6 hari</div>
+                <div class="progress-bar">
+                    <div class="progress-fill success" style="width: 100%"></div>
+                </div>
+            </div>
+            
+            <div class="stat-card warning">
+                <div class="stat-title">Produksi Achievement</div>
+                <div class="stat-value warning">78.6%</div>
+                <div class="stat-subtitle">15,824 TSD vs 20,160 TSD target</div>
+                <div class="progress-bar">
+                    <div class="progress-fill warning" style="width: 78.6%"></div>
+                </div>
+            </div>
+            
+            <div class="stat-card success">
+                <div class="stat-title">Ritase Achievement</div>
+                <div class="stat-value success">86.7%</div>
+                <div class="stat-subtitle">583 vs 672 target</div>
+                <div class="progress-bar">
+                    <div class="progress-fill success" style="width: 86.7%"></div>
+                </div>
+            </div>
+            
+            <div class="stat-card success">
+                <div class="stat-title">Trip/Day Achievement</div>
+                <div class="stat-value success">95.7%</div>
+                <div class="stat-subtitle">6.7 vs 7.0 target</div>
+                <div class="progress-bar">
+                    <div class="progress-fill success" style="width: 95.7%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="showTab('operational')">📊 Analisis Operasional</button>
+                <button class="tab-button" onclick="showTab('truck-performance')">🚛 Performa Truk</button>
+                <button class="tab-button" onclick="showTab('daily-analysis')">📅 Analisis Harian</button>
+            </div>
+
+            <!-- Operational Tab -->
+            <div id="operational" class="tab-content active">
+                <div class="chart-grid">
+                    <div class="chart-container">
+                        <div class="chart-title">📈 Trend Produksi Harian</div>
+                        <canvas id="produksiChart" class="chart-canvas"></canvas>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">🔄 Ritase vs Target</div>
+                        <canvas id="ritaseChart" class="chart-canvas"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-grid">
+                    <div class="chart-container">
+                        <div class="chart-title">⚡ Produktivitas Trend</div>
+                        <canvas id="produktivitasChart" class="chart-canvas"></canvas>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">🚚 Kapasitas & Trip per Day</div>
+                        <canvas id="kapasitasChart" class="chart-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Truck Performance Tab -->
+            <div id="truck-performance" class="tab-content">
+                <div class="chart-container">
+                    <div class="chart-title">🏆 Top 10 Performa Truk (by Average Netto)</div>
+                    <canvas id="truckChart" class="chart-canvas"></canvas>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title">📋 Detail Performa Truk per Hari</div>
+                    </div>
+                    <div style="overflow-x: auto; max-height: 500px;">
+                        <table id="truckTable">
+                            <thead>
+                                <tr>
+                                    <th>Truk ID</th>
+                                    <th>Hari 1 (20/7)</th>
+                                    <th>Hari 2 (21/7)</th>
+                                    <th>Hari 3 (22/7)</th>
+                                    <th>Hari 4 (23/7)</th>
+                                    <th>Hari 5 (24/7)</th>
+                                    <th>Hari 6 (25/7)</th>
+                                    <th>Avg Netto</th>
+                                    <th>Total Siklus</th>
+                                </tr>
+                            </thead>
+                            <tbody id="truckTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Analysis Tab -->
+            <div id="daily-analysis" class="tab-content">
+                <!-- Detailed Operations Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title"⏱️ Breakdown Waktu Operasional per Parameter</div>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" style="vertical-align: middle; background: #334155; color: white;">Parameter</th>
+                                    <th rowspan="2" style="vertical-align: middle; background: #334155; color: white;">Deskripsi</th>
+                                    <th rowspan="2" style="vertical-align: middle; background: #334155; color: white;">Plan</th>
+                                    <th colspan="6" style="background: #1e40af; color: white; text-align: center;">Realisasi</th>
+                                    <th rowspan="2" style="vertical-align: middle; background: #334155; color: white;">Sat</th>
+                                </tr>
+                                <tr>
+                                    <th style="background: #3b82f6; color: white;">20 Juli</th>
+                                    <th style="background: #3b82f6; color: white;">21 Juli</th>
+                                    <th style="background: #3b82f6; color: white;">22 Juli</th>
+                                    <th style="background: #3b82f6; color: white;">23 Juli</th>
+                                    <th style="background: #3b82f6; color: white;">24 Juli</th>
+                                    <th style="background: #3b82f6; color: white;">25 Juli</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td rowspan="6" style="vertical-align: middle; font-weight: bold; background: #f1f5f9;">1 Cycle Port Operation (SPMT)</td>
+                                    <td>Proses Plugging Flexible Hose Ke Konnector Truck</td>
+                                    <td>2,00</td>
+                                    <td>5,31</td>
+                                    <td>9,34</td>
+                                    <td>5,13</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>Menit</td>
+                                </tr>
+                                <tr>
+                                    <td>Proses menaikan pressure</td>
+                                    <td>15,00</td>
+                                    <td>10,49</td>
+                                    <td>4,92</td>
+                                    <td>15,98</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>Menit</td>
+                                </tr>
+                                <tr>
+                                    <td>Proses Pemompaan Alumina Ke kapal</td>
+                                    <td>41,00</td>
+                                    <td>48,04</td>
+                                    <td>41,00</td>
+                                    <td>34,19</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>Menit</td>
+                                </tr>
+                                <tr>
+                                    <td>Proses Un Plugging Flexible Hose dari Truck</td>
+                                    <td>2,00</td>
+                                    <td>2,51</td>
+                                    <td>6,01</td>
+                                    <td>6,09</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>Menit</td>
+                                </tr>
+                                <tr>
+                                    <td>waktu gate-in to jetty, timbang dll (sebaliknya)</td>
+                                    <td>20,00</td>
+                                    <td class="time-danger">89,65</td>
+                                    <td class="time-warning">50,73</td>
+                                    <td class="time-warning">66,61</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>Menit</td>
+                                </tr>
+                                <tr>
+                                    <td class="highlight-total">Total waktu per truk</td>
+                                    <td class="highlight-total">80,00</td>
+                                    <td class="highlight-total">156,00</td>
+                                    <td class="highlight-total">112,00</td>
+                                    <td class="highlight-total">128,00</td>
+                                    <td class="highlight-total">-</td>
+                                    <td class="highlight-total">-</td>
+                                    <td class="highlight-total">-</td>
+                                    <td class="highlight-total">Menit</td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="4" style="vertical-align: middle; font-weight: bold; background: #f1f5f9;">1 Cycle bulk silo to port (BAI)</td>
+                                    <td>Antri dan Muat Silo</td>
+                                    <td>20,00</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>Menit</td>
+                                </tr>
+                                <tr>
+                                    <td>Perjalanan ke pelabuhan (11 km)</td>
+                                    <td>30,00</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>Menit</td>
+                                </tr>
+                                <tr>
+                                    <td>Kembali ke pelabuhan (11 km)</td>
+                                    <td>30,00</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>Menit</td>
+                                </tr>
+                                <tr>
+                                    <td class="highlight-total">Total waktu per truk</td>
+                                    <td class="highlight-total">80,00</td>
+                                    <td class="highlight-total">58,90</td>
+                                    <td class="highlight-total">71,43</td>
+                                    <td class="highlight-total">73,29</td>
+                                    <td class="highlight-total">-</td>
+                                    <td class="highlight-total">-</td>
+                                    <td class="highlight-total">-</td>
+                                    <td class="highlight-total">Menit</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: bold; background: #f1f5f9;">Turn Round Trip</td>
+                                    <td>Total waktu dari silo s/d muat ke vessel</td>
+                                    <td>160,00</td>
+                                    <td>214,90</td>
+                                    <td>183,43</td>
+                                    <td>201,29</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>Menit</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: bold; background: #f1f5f9;">Trip per day</td>
+                                    <td>siklus per truk</td>
+                                    <td>7,00</td>
+                                    <td class="performance-poor">3,60</td>
+                                    <td class="performance-good">7,40</td>
+                                    <td class="performance-good">7,30</td>
+                                    <td class="performance-good">7,50</td>
+                                    <td class="performance-good">7,20</td>
+                                    <td class="performance-average">5,30</td>
+                                    <td>Trip</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: bold; background: #f1f5f9;">Kebutuhan truk/hari</td>
+                                    <td>3 shift</td>
+                                    <td>16,00</td>
+                                    <td>15,00</td>
+                                    <td>15,00</td>
+                                    <td>15,00</td>
+                                    <td>15,00</td>
+                                    <td>15,00</td>
+                                    <td>15,00</td>
+                                    <td>Truk</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: bold; background: #f1f5f9;">Ritase</td>
+                                    <td>16 x trip per day</td>
+                                    <td>112,00</td>
+                                    <td class="performance-poor">79,00</td>
+                                    <td class="performance-good">111,00</td>
+                                    <td class="performance-good">110,00</td>
+                                    <td class="performance-good">113,00</td>
+                                    <td class="performance-average">101,00</td>
+                                    <td class="performance-poor">91,00</td>
+                                    <td>Rit</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: bold; background: #f1f5f9;">Kapasitas Trucking</td>
+                                    <td>Kapasitas tonase per truk</td>
+                                    <td>30,00</td>
+                                    <td>26,15</td>
+                                    <td>25,64</td>
+                                    <td>25,75</td>
+                                    <td>26,10</td>
+                                    <td class="performance-average">25,92</td>
+                                    <td>24,79</td>
+                                    <td>MT</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: bold; background: #f1f5f9;">Kinerja per jam</td>
+                                    <td>produksi harian / waktu efektif</td>
+                                    <td>210,00</td>
+                                    <td>125,43</td>
+                                    <td class="performance-good">1872,61</td>
+                                    <td>175,46</td>
+                                    <td>167,62</td>
+                                    <td>129,02</td>
+                                    <td>415,44</td>
+                                    <td>TGH</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: bold; background: #f1f5f9;">Effective Time</td>
+                                    <td>NoT Utk preparatrions 6 jam perhari. Effektive time berkurang dari 21 jam menjadi 15 jam/ hari</td>
+                                    <td>15,00</td>
+                                    <td>16,24</td>
+                                    <td class="time-danger">1,57</td>
+                                    <td>16,22</td>
+                                    <td>16,40</td>
+                                    <td>19,40</td>
+                                    <td>4,21</td>
+                                    <td>Jam</td>
+                                </tr>
+                                <tr>
+                                    <td class="highlight-summary" style="font-weight: bold; background: #ddd6fe;">Produktivitas Perpalka/ Day</td>
+                                    <td class="highlight-summary">Per Palka dilayani 2 hiblow truck</td>
+                                    <td class="highlight-summary">672,00</td>
+                                    <td class="highlight-summary performance-poor">407,40</td>
+                                    <td class="highlight-summary performance-good">588,00</td>
+                                    <td class="highlight-summary performance-average">569,20</td>
+                                    <td class="highlight-summary performance-average">549,80</td>
+                                    <td class="highlight-summary performance-average">500,60</td>
+                                    <td class="highlight-summary performance-poor">349,80</td>
+                                    <td class="highlight-summary">MT</td>
+                                </tr>
+                                <tr>
+                                    <td class="highlight-summary" style="font-weight: bold; background: #ddd6fe;">Produksi per day</td>
+                                    <td class="highlight-summary">5 Palka</td>
+                                    <td class="highlight-summary performance-good">3360,00</td>
+                                    <td class="highlight-summary performance-poor">2037,00</td>
+                                    <td class="highlight-summary performance-good">2940,00</td>
+                                    <td class="highlight-summary performance-good">2846,00</td>
+                                    <td class="highlight-summary performance-good">2749,00</td>
+                                    <td class="highlight-summary performance-average">2503,00</td>
+                                    <td class="highlight-summary performance-poor">1749,00</td>
+                                    <td class="highlight-summary">TSD</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Summary Performance Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title">📊 Performance Harian: Plan vs Realisasi</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Trip/Day</th>
+                                <th>Ritase</th>
+                                <th>Kapasitas (Ton)</th>
+                                <th>Produktivitas (MT)</th>
+                                <th>Produksi (TSD)</th>
+                                <th>Effective Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>TARGET</strong></td>
+                                <td>7.00</td>
+                                <td>112</td>
+                                <td>30.00</td>
+                                <td>672</td>
+                                <td class="performance-good">3,360</td>
+                                <td>15.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>20 Juli</strong></td>
+                                <td>3.60 <span style="color: #ef4444;">(51%)</span></td>
+                                <td>79 <span style="color: #f59e0b;">(71%)</span></td>
+                                <td>26.15 <span style="color: #10b981;">(87%)</span></td>
+                                <td>407 <span style="color: #ef4444;">(61%)</span></td>
+                                <td class="performance-poor">2,037 (61%)</td>
+                                <td>16.24 <span style="color: #10b981;">(108%)</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>21 Juli</strong></td>
+                                <td>7.40 <span style="color: #10b981;">(106%)</span></td>
+                                <td>111 <span style="color: #10b981;">(99%)</span></td>
+                                <td>25.64 <span style="color: #f59e0b;">(85%)</span></td>
+                                <td>588 <span style="color: #10b981;">(88%)</span></td>
+                                <td class="performance-good">2,940 (87%)</td>
+                                <td>1.57 <span style="color: #ef4444;">(10%)</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>22 Juli</strong></td>
+                                <td>7.30 <span style="color: #10b981;">(104%)</span></td>
+                                <td>110 <span style="color: #10b981;">(98%)</span></td>
+                                <td>25.75 <span style="color: #f59e0b;">(86%)</span></td>
+                                <td>569 <span style="color: #f59e0b;">(85%)</span></td>
+                                <td class="performance-good">2,846 (85%)</td>
+                                <td>16.22 <span style="color: #10b981;">(108%)</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>23 Juli</strong></td>
+                                <td>7.50 <span style="color: #10b981;">(107%)</span></td>
+                                <td>113 <span style="color: #10b981;">(101%)</span></td>
+                                <td>26.10 <span style="color: #f59e0b;">(87%)</span></td>
+                                <td>550 <span style="color: #f59e0b;">(82%)</span></td>
+                                <td class="performance-good">2,749 (82%)</td>
+                                <td>16.40 <span style="color: #10b981;">(109%)</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>24 Juli</strong></td>
+                                <td>7.20 <span style="color: #10b981;">(103%)</span></td>
+                                <td>101 <span style="color: #f59e0b;">(90%)</span></td>
+                                <td>25.92 <span style="color: #f59e0b;">(86%)</span></td>
+                                <td>501 <span style="color: #f59e0b;">(75%)</span></td>
+                                <td class="performance-average">2,503 (74%)</td>
+                                <td>19.40 <span style="color: #10b981;">(129%)</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>25 Juli</strong></td>
+                                <td>5.30 <span style="color: #f59e0b;">(76%)</span></td>
+                                <td>91 <span style="color: #f59e0b;">(81%)</span></td>
+                                <td>24.79 <span style="color: #f59e0b;">(83%)</span></td>
+                                <td>350 <span style="color: #ef4444;">(52%)</span></td>
+                                <td class="performance-poor">1,749 (52%)</td>
+                                <td>4.21 <span style="color: #ef4444;">(28%)</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data trucking per hari
+        const truckData = {
+            day1: {
+                'A9568U': { netto: 29.67, siklus: 3 },
+                'B9051IB': { netto: 26.19, siklus: 1 },
+                'B9222UDA': { netto: 27.02, siklus: 4 },
+                'B9281GCB': { netto: 28.39, siklus: 3 },
+                'B9283XA': { netto: 32.98, siklus: 3 },
+                'B9284GCB': { netto: 28.4, siklus: 4 },
+                'B9732UDO': { netto: 28.64, siklus: 4 },
+                'B9878UFV': { netto: 21.29, siklus: 3 },
+                'B9917UFV': { netto: 25.18, siklus: 5 },
+                'B9925UFV': { netto: 26.21, siklus: 4 },
+                'B9948UFV': { netto: 22.17, siklus: 4 },
+                'B9956UFV': { netto: 24.50, siklus: 4 },
+                'BE8019ABU': { netto: 22.97, siklus: 4 },
+                'BE8267ACU': { netto: 24.22, siklus: 4 },
+                'BE8297ACU': { netto: 26.67, siklus: 4 }
+            },
+            day2: {
+                'A9568U': { netto: 30.92, siklus: 6 },
+                'B9051IB': { netto: 27.04, siklus: 5 },
+                'B9222UDA': { netto: 25.57, siklus: 7 },
+                'B9281GCB': { netto: 26.60, siklus: 8 },
+                'B9283XA': { netto: 30.51, siklus: 8 },
+                'B9284GCB': { netto: 27.30, siklus: 6 },
+                'B9732UDO': { netto: 28.18, siklus: 8 },
+                'B9878UFV': { netto: 23.75, siklus: 8 },
+                'B9917UFV': { netto: 24.16, siklus: 7 },
+                'B9925UFV': { netto: 24.41, siklus: 8 },
+                'B9948UFV': { netto: 22.12, siklus: 8 },
+                'B9956UFV': { netto: 22.90, siklus: 8 },
+                'BE8019ABU': { netto: 22.66, siklus: 8 },
+                'BE8267ACU': { netto: 24.92, siklus: 8 },
+                'BE8297ACU': { netto: 25.76, siklus: 8 }
+            },
+            day3: {
+                'A9568U': { netto: 31.36, siklus: 6 },
+                'B9051IB': { netto: 27.31, siklus: 7 },
+                'B9222UDA': { netto: 26.86, siklus: 9 },
+                'B9281GCB': { netto: 26.85, siklus: 7 },
+                'B9283XA': { netto: 30.52, siklus: 7 },
+                'B9284GCB': { netto: 26.82, siklus: 7 },
+                'B9732UDO': { netto: 28.07, siklus: 7 },
+                'B9878UFV': { netto: 21.73, siklus: 8 },
+                'B9917UFV': { netto: 24.23, siklus: 8 },
+                'B9925UFV': { netto: 24.62, siklus: 7 },
+                'B9948UFV': { netto: 23.25, siklus: 7 },
+                'B9956UFV': { netto: 21.39, siklus: 7 },
+                'BE8019ABU': { netto: 22.22, siklus: 7 },
+                'BE8267ACU': { netto: 26.03, siklus: 8 },
+                'BE8297ACU': { netto: 26.19, siklus: 8 }
+            },
+            day4: {
+                'A9568U': { netto: 31.36, siklus: 6 },
+                'B9051IB': { netto: 27.31, siklus: 7 },
+                'B9222UDA': { netto: 26.86, siklus: 9 },
+                'B9281GCB': { netto: 26.85, siklus: 7 },
+                'B9283XA': { netto: 30.52, siklus: 7 },
+                'B9284GCB': { netto: 26.82, siklus: 7 },
+                'B9732UDO': { netto: 28.07, siklus: 7 },
+                'B9878UFV': { netto: 21.73, siklus: 8 },
+                'B9917UFV': { netto: 24.23, siklus: 8 },
+                'B9925UFV': { netto: 24.62, siklus: 7 },
+                'B9948UFV': { netto: 23.25, siklus: 7 },
+                'B9956UFV': { netto: 21.39, siklus: 7 },
+                'BE8019ABU': { netto: 22.22, siklus: 7 },
+                'BE8267ACU': { netto: 26.03, siklus: 8 },
+                'BE8297ACU': { netto: 26.19, siklus: 8 }
+            },
+            day5: {
+                'A9568U': { netto: 31.09, siklus: 5 },
+                'B9051IB': { netto: 27.01, siklus: 8 },
+                'B9222UDA': { netto: 26.69, siklus: 7 },
+                'B9283XA': { netto: 29.17, siklus: 8 },
+                'B9284GCB': { netto: 26.81, siklus: 7 },
+                'B9732UDO': { netto: 28.92, siklus: 4 },
+                'B9878UFV': { netto: 21.67, siklus: 8 },
+                'B9917UFV': { netto: 23.08, siklus: 8 },
+                'B9925UFV': { netto: 24.01, siklus: 8 },
+                'B9948UFV': { netto: 21.35, siklus: 7 },
+                'B9956UFV': { netto: 21.61, siklus: 7 },
+                'BE8019ABU': { netto: 21.59, siklus: 7 },
+                'BE8267ACU': { netto: 25.27, siklus: 8 },
+                'BE8297ACU': { netto: 25.43, siklus: 9 }
+            },
+            day6: {
+                'A9568U': { netto: 28.35, siklus: 4 },
+                'B9051IB': { netto: 27.30, siklus: 6 },
+                'B9222UDA': { netto: 27.88, siklus: 5 },
+                'B9283XA': { netto: 30.17, siklus: 4 },
+                'B9284GCB': { netto: 26.47, siklus: 6 },
+                'B9732UDO': { netto: 27.11, siklus: 7 },
+                'B9878UFV': { netto: 19.40, siklus: 8 },
+                'B9917UFV': { netto: 23.07, siklus: 6 },
+                'B9925UFV': { netto: 21.84, siklus: 5 },
+                'B9939BDHK': { netto: 27.56, siklus: 7 },
+                'B9948UFV': { netto: 23.03, siklus: 6 },
+                'B9956UFV': { netto: 23.06, siklus: 4 },
+                'BA8782RO': { netto: 14.58, siklus: 1 },
+                'BA8785RO': { netto: 22.49, siklus: 1 },
+                'BE8019ABU': { netto: 22.51, siklus: 7 },
+                'BE8267ACU': { netto: 25.04, siklus: 8 },
+                'BE8297ACU': { netto: 24.86, siklus: 6 }
+            }
+        };
+
+        // Operational data
+        const operationalData = [
+            { day: '20 Juli', produksi: 2037, target: 3360, ritase: 79, targetRitase: 112, produktivitas: 407, targetProduktivitas: 672, kapasitas: 26.15, trip: 3.60 },
+            { day: '21 Juli', produksi: 2940, target: 3360, ritase: 111, targetRitase: 112, produktivitas: 588, targetProduktivitas: 672, kapasitas: 25.64, trip: 7.40 },
+            { day: '22 Juli', produksi: 2846, target: 3360, ritase: 110, targetRitase: 112, produktivitas: 569, targetProduktivitas: 672, kapasitas: 25.75, trip: 7.30 },
+            { day: '23 Juli', produksi: 2749, target: 3360, ritase: 113, targetRitase: 112, produktivitas: 550, targetProduktivitas: 672, kapasitas: 26.10, trip: 7.50 },
+            { day: '24 Juli', produksi: 2503, target: 3360, ritase: 101, targetRitase: 112, produktivitas: 501, targetProduktivitas: 672, kapasitas: 25.92, trip: 7.20 },
+            { day: '25 Juli', produksi: 1749, target: 3360, ritase: 91, targetRitase: 112, produktivitas: 350, targetProduktivitas: 672, kapasitas: 24.79, trip: 5.30 }
+        ];
+
+        // Calculate truck averages
+        function calculateTruckAverages() {
+            const allTrucks = new Set();
+            Object.values(truckData).forEach(day => {
+                Object.keys(day).forEach(truck => allTrucks.add(truck));
+            });
+
+            const truckAverages = [];
+            allTrucks.forEach(truckId => {
+                let totalNetto = 0;
+                let totalSiklus = 0;
+                let dayCount = 0;
+                
+                Object.values(truckData).forEach(day => {
+                    if (day[truckId]) {
+                        totalNetto += day[truckId].netto;
+                        totalSiklus += day[truckId].siklus;
+                        dayCount++;
+                    }
+                });
+
+                if (dayCount > 0) {
+                    truckAverages.push({
+                        id: truckId,
+                        avgNetto: totalNetto / dayCount,
+                        totalSiklus: totalSiklus,
+                        avgSiklus: totalSiklus / dayCount,
+                        dayCount: dayCount
+                    });
+                }
+            });
+
+            return truckAverages.sort((a, b) => b.avgNetto - a.avgNetto);
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // Produksi Chart
+            const produksiCtx = document.getElementById('produksiChart').getContext('2d');
+            new Chart(produksiCtx, {
+                type: 'bar',
+                data: {
+                    labels: operationalData.map(d => d.day),
+                    datasets: [
+                        {
+                            label: 'Target',
+                            data: operationalData.map(d => d.target),
+                            backgroundColor: 'rgba(148, 163, 184, 0.6)',
+                            borderColor: 'rgba(148, 163, 184, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Realisasi',
+                            data: operationalData.map(d => d.produksi),
+                            backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                            borderColor: 'rgba(16, 185, 129, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Produksi (TSD)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Ritase Chart
+            const ritaseCtx = document.getElementById('ritaseChart').getContext('2d');
+            new Chart(ritaseCtx, {
+                type: 'line',
+                data: {
+                    labels: operationalData.map(d => d.day),
+                    datasets: [
+                        {
+                            label: 'Target',
+                            data: operationalData.map(d => d.targetRitase),
+                            borderColor: 'rgba(148, 163, 184, 1)',
+                            backgroundColor: 'rgba(148, 163, 184, 0.1)',
+                            borderDash: [5, 5],
+                            fill: false
+                        },
+                        {
+                            label: 'Realisasi',
+                            data: operationalData.map(d => d.ritase),
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: false,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Ritase'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Produktivitas Chart
+            const produktivitasCtx = document.getElementById('produktivitasChart').getContext('2d');
+            new Chart(produktivitasCtx, {
+                type: 'line',
+                data: {
+                    labels: operationalData.map(d => d.day),
+                    datasets: [
+                        {
+                            label: 'Target',
+                            data: operationalData.map(d => d.targetProduktivitas),
+                            borderColor: 'rgba(245, 158, 11, 1)',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            borderDash: [5, 5],
+                            fill: false
+                        },
+                        {
+                            label: 'Realisasi',
+                            data: operationalData.map(d => d.produktivitas),
+                            borderColor: 'rgba(239, 68, 68, 1)',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            fill: false,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Produktivitas (MT)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Kapasitas Chart
+            const kapasitasCtx = document.getElementById('kapasitasChart').getContext('2d');
+            new Chart(kapasitasCtx, {
+                type: 'bar',
+                data: {
+                    labels: operationalData.map(d => d.day),
+                    datasets: [
+                        {
+                            label: 'Kapasitas (Ton)',
+                            data: operationalData.map(d => d.kapasitas),
+                            backgroundColor: 'rgba(139, 69, 195, 0.6)',
+                            borderColor: 'rgba(139, 69, 195, 1)',
+                            borderWidth: 1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Trip/Day',
+                            data: operationalData.map(d => d.trip),
+                            type: 'line',
+                            borderColor: 'rgba(34, 197, 94, 1)',
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            yAxisID: 'y1',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Kapasitas (Ton)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Trip/Day'
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    }
+                }
+            });
+
+            // Truck Performance Chart
+            const truckAverages = calculateTruckAverages().slice(0, 10);
+            const truckCtx = document.getElementById('truckChart').getContext('2d');
+            new Chart(truckCtx, {
+                type: 'bar',
+                data: {
+                    labels: truckAverages.map(t => t.id),
+                    datasets: [
+                        {
+                            label: 'Average Netto (Ton)',
+                            data: truckAverages.map(t => t.avgNetto),
+                            backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                            borderColor: 'rgba(16, 185, 129, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Average Netto (Ton)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Generate truck table
+        function generateTruckTable() {
+            const truckAverages = calculateTruckAverages();
+            const tbody = document.getElementById('truckTableBody');
+            
+            truckAverages.forEach(truck => {
+                const row = tbody.insertRow();
+                
+                // Truck ID
+                const cellId = row.insertCell();
+                cellId.innerHTML = `<span class="truck-id">${truck.id}</span>`;
+                
+                // Daily data
+                Object.keys(truckData).forEach(dayKey => {
+                    const cell = row.insertCell();
+                    const dayData = truckData[dayKey][truck.id];
+                    if (dayData) {
+                        const performanceClass = dayData.netto > 28 ? 'performance-good' : 
+                                              dayData.netto > 25 ? 'performance-average' : 'performance-poor';
+                        cell.innerHTML = `<div class="${performanceClass}">${dayData.netto.toFixed(1)}</div><small>${dayData.siklus} siklus</small>`;
+                    } else {
+                        cell.innerHTML = '<span style="color: #94a3b8;">-</span>';
+                    }
+                });
+                
+                // Average Netto
+                const cellAvg = row.insertCell();
+                const avgClass = truck.avgNetto > 28 ? 'performance-good' : 
+                               truck.avgNetto > 25 ? 'performance-average' : 'performance-poor';
+                cellAvg.innerHTML = `<strong class="${avgClass}">${truck.avgNetto.toFixed(2)}</strong>`;
+                
+                // Total Siklus
+                const cellTotal = row.insertCell();
+                cellTotal.innerHTML = `<strong>${truck.totalSiklus}</strong>`;
+            });
+        }
+
+        // Tab functionality
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+            generateTruckTable();
+        });
+    </script>
+</body>
+</html>
