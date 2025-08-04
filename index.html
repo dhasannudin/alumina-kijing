@@ -6,6 +6,21 @@
     <title>Dashboard Analisis Muat Alumina Kijing</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
+      
+       .average-row {
+        background-color: #e0e7ff !important;
+        font-weight: bold;
+    }
+    
+    .average-row td {
+        border-top: 2px solid #818cf8;
+        border-bottom: 2px solid #818cf8;
+    }
+    
+    .grand-total td {
+        border-top: 3px solid #d35400;
+    }
+      
         * {
             margin: 0;
             padding: 0;
@@ -285,6 +300,74 @@
             display: block;
         }
         
+        .plat-no {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .grand-total {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%) !important;
+            color: white !important;
+            font-weight: 700;
+        }
+        
+        .grand-total td {
+            border-top: 3px solid #d35400;
+            font-size: 0.9rem;
+        }
+
+        /* Drilling Filter Styles */
+        .drilling-filter-section {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 15px;
+        }
+
+        .drilling-filter-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .drilling-filter-label {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #2c3e50;
+        }
+
+        .drilling-filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .drilling-filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .drilling-filter-btn:hover {
+            background: #3498db;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .drilling-filter-btn.active {
+            background: #3498db;
+            color: white;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -301,6 +384,11 @@
             .chart-grid {
                 grid-template-columns: 1fr;
             }
+
+            .drilling-filter-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
@@ -316,37 +404,37 @@
         <div class="stats-grid">
             <div class="stat-card success">
                 <div class="stat-title">Total Truk Aktif</div>
-                <div class="stat-value success">17</div>
-                <div class="stat-subtitle">Truk operasional 6 hari</div>
+                <div class="stat-value warning">18</div>
+                <div class="stat-subtitle">18 Truk vs 20 Truk</div>
                 <div class="progress-bar">
-                    <div class="progress-fill success" style="width: 100%"></div>
+                    <div class="progress-fill warning" style="width: 80%"></div>
                 </div>
             </div>
             
             <div class="stat-card warning">
                 <div class="stat-title">Produksi Achievement</div>
-                <div class="stat-value warning">78.6%</div>
-                <div class="stat-subtitle">15,824 TSD vs 20,160 TSD target</div>
+                <div class="stat-value danger">51.47%</div>
+                <div class="stat-subtitle">2471 TSD vs 4800 TSD target</div>
                 <div class="progress-bar">
-                    <div class="progress-fill warning" style="width: 78.6%"></div>
+                    <div class="progress-fill danger" style="width: 51.47%"></div>
                 </div>
             </div>
             
             <div class="stat-card success">
-                <div class="stat-title">Ritase Achievement</div>
-                <div class="stat-value success">86.7%</div>
-                <div class="stat-subtitle">583 vs 672 target</div>
+                <div class="stat-title">Total Cycle time</div>
+                <div class="stat-value danger">+50.11%</div>
+                <div class="stat-subtitle">192.14 vs 128 menit</div>
                 <div class="progress-bar">
-                    <div class="progress-fill success" style="width: 86.7%"></div>
+                    <div class="progress-fill danger" style="width: 50.11%"></div>
                 </div>
             </div>
             
             <div class="stat-card success">
                 <div class="stat-title">Trip/Day Achievement</div>
-                <div class="stat-value success">95.7%</div>
-                <div class="stat-subtitle">6.7 vs 7.0 target</div>
+                <div class="stat-value warning">64.06%</div>
+                <div class="stat-subtitle">6.7 vs 10 target</div>
                 <div class="progress-bar">
-                    <div class="progress-fill success" style="width: 95.7%"></div>
+                    <div class="progress-fill warning" style="width: 64.06%"></div>
                 </div>
             </div>
         </div>
@@ -424,376 +512,383 @@
                 <!-- Detailed Operations Table -->
                 <div class="table-container">
                     <div class="table-header">
-                        <div class="table-title"⏱️ Breakdown Waktu Operasional per Parameter</div>
+                        <div class="table-title">⏱️ Breakdown Waktu Operasional per Parameter</div>
                     </div>
                     <div style="overflow-x: auto;">
                         <table>
-                            
                             <tbody>
-                                <tr>
-                                    <td rowspan="2" style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Parameter</td>
-                                    <td rowspan="2" style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Deskripsi</td>
-                                    <td rowspan="2" style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Plan 1</td>
-                                    <td rowspan="2" style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Plan 2</td>
-                                    <td colspan="6" style="background: #1e40af; color: white; text-align: center; font-weight: bold;">Realisasi</td>
-                                    <td rowspan="2" style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Sat</td>
-                                </tr>
-                                <tr>
-                                    <td style="background: #3b82f6; color: white; font-weight: bold;">20 Juli</td>
-                                    <td style="background: #3b82f6; color: white; font-weight: bold;">21 Juli</td>
-                                    <td style="background: #3b82f6; color: white; font-weight: bold;">22 Juli</td>
-                                    <td style="background: #3b82f6; color: white; font-weight: bold;">23 Juli</td>
-                                    <td style="background: #3b82f6; color: white; font-weight: bold;">24 Juli</td>
-                                    <td style="background: #3b82f6; color: white; font-weight: bold;">25 Juli</td>
-                                </tr>
-                                
-                                <tr>
-                                    <td rowspan="7" style="vertical-align: middle; font-weight: bold; background: #f1f5f9;">1 Cycle Port Operation (SPMT)</td>
-                                    <td>Waktu Gate-in to Plugging</td>
-                                    <td>20,00</td>
-                                    <td>20,00</td>
-                                    <td class="time-danger">81,41</td>
-                                    <td class="time-warning">41,95</td>
-                                    <td class="time-warning">51,00</td>
-                                    <td class="time-warning">38,52</td>
-                                    <td class="time-warning">38,31</td>
-                                    <td class="time-warning">53,46</td>
-                                    <td>Menit</td>
-                                </tr>
-                                
-                                <tr>
-                                    <td>Proses Plugging Flexible Hose Ke Konnector truck</td>
-                                    <td>5,00</td>
-                                    <td>5,00</td>
-                                    <td>4,76</td>
-                                    <td>7,19</td>
-                                    <td>7,13</td>
-                                    <td class="time-danger">16,69</td>
-                                    <td>4,60</td>
-                                    <td>2,86</td>
-                                    <td>Menit</td>
-                                </tr>
-                                <tr>
-                                    <td>Proses menaikan pressure</td>
-                                    <td>15,00</td>
-                                    <td>5,00</td>
-                                    <td>3,44</td>
-                                    <td>4,12</td>
-                                    <td>6,67</td>
-                                    <td>2,67</td>
-                                    <td>3,18</td>
-                                    <td>3,97</td>
-                                    <td>Menit</td>
-                                </tr>
-                                <tr>
-                                    <td>Proses Pemompaan Alumina Ke kapal</td>
-                                    <td>45,00</td>
-                                    <td>45,00</td>
-                                    <td>45,50</td>
-                                    <td>40,12</td>
-                                    <td>43,20</td>
-                                    <td>38,65</td>
-                                    <td>43,94</td>
-                                    <td>45,30</td>
-                                    <td>Menit</td>
-                                </tr>
-                                <tr>
-                                    <td>Proses Unplugging Flexible Hose dari Truck</td>
-                                    <td>5,00</td>
-                                    <td>5,00</td>
-                                    <td>2,63</td>
-                                    <td>3,92</td>
-                                    <td>6,83</td>
-                                    <td>3,42</td>
-                                    <td>2,27</td>
-                                    <td>3,74</td>
-                                    <td>Menit</td>
-                                </tr>
-                                <tr>
-                                    <td>Waktu Unplugging to Gate-out</td>
-                                    <td>20,00</td>
-                                    <td>20,00</td>
-                                    <td>12,33</td>
-                                    <td>13,74</td>
-                                    <td>10,94</td>
-                                    <td>12,89</td>
-                                    <td>9,76</td>
-                                    <td>11,45</td>
-                                    <td>Menit</td>
-                                </tr>
-                        
-                                <tr>
-                                    <td class="highlight-total">Total waktu per truk</td>
-                                    <td class="highlight-total">110,00</td>
-                                    <td class="highlight-total">100,00</td>
-                                    <td class="time-danger">150,07</td>
-                                    <td class="highlight-total performance-good">111,03</td>
-                                    <td class="highlight-total time-warning">125,76</td>
-                                    <td class="highlight-total performance-good">112,85</td>
-                                    <td class="highlight-total performance-good">102,06</td>
-                                    <td class="highlight-total time-warning">120,78</td>
-                                    <td class="highlight-total">Menit</td>
-                                </tr>
-                                <tr>
-                                    <td rowspan="4" style="vertical-align: middle; font-weight: bold; background: #f1f5f9;">1 Cycle bulk silo to port (BAI)</td>
-                                    <td>Antri dan Muat Silo</td>
-                                    <td>10,00</td>
-                                    <td>10,00</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>Menit</td>
-                                </tr>
-                                <tr>
-                                    <td>Perjalanan ke pelabuhan (11 km)</td>
-                                    <td>30,00</td>
-                                    <td>30,00</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>Menit</td>
-                                </tr>
-                                <tr>
-                                    <td>Kembali ke pelabuhan (11 km)</td>
-                                    <td>30,00</td>
-                                    <td>30,00</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>Menit</td>
-                                </tr>
-                                <tr>
-                                    <td class="highlight-total">Total waktu per truk</td>
-                                    <td class="highlight-total">70,00</td>
-                                    <td class="highlight-total">70,00</td>
-                                    <td class="highlight-total performance-good">43,30</td>
-                                    <td class="highlight-total time-warning">81,76</td>
-                                    <td class="highlight-total time-warning">74,76</td>
-                                    <td class="highlight-total performance-good">71,17</td>
-                                    <td class="highlight-total time-warning">79,09</td>
-                                    <td class="highlight-total time-warning">82,03</td>
-                                    <td class="highlight-total">Menit</td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: bold; background: #f1f5f9;">Turn Round Trip</td>
-                                    <td>Total waktu dari silo s/d muat ke vessel</td>
-                                    <td>180,00</td>
-                                    <td>170,00</td>
-                                    <td>193,38</td>
-                                    <td>192,78</td>
-                                    <td>200,53</td>
-                                    <td>184,02</td>
-                                    <td>181,15</td>
-                                    <td>202,81</td>
-                                    <td>Menit</td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: bold; background: #f1f5f9;">Trip per day</td>
-                                    <td>siklus per hari per truk</td>
-                                    <td>7,00</td>
-                                    <td>8,00</td>
-                                    <td class="performance-poor">3,60</td>
-                                    <td class="performance-good">7,40</td>
-                                    <td class="performance-good">7,33</td>
-                                    <td class="performance-good">7,53</td>
-                                    <td class="performance-good">7,21</td>
-                                    <td class="performance-average">5,35</td>
-                                    <td>Trip</td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: bold; background: #f1f5f9;">Kebutuhan truk/hari</td>
-                                    <td>3 shift</td>
-                                    <td>16,00</td>
-                                    <td>20,00</td>
-                                    <td class="performance-average">15,00</td>
-                                    <td class="performance-average">15,00</td>
-                                    <td class="performance-average">15,00</td>
-                                    <td class="performance-average">15,00</td>
-                                    <td class="performance-poor">14,00</td>
-                                    <td class="performance-poor">17,00</td>
-                                    <td>Truk</td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: bold; background: #f1f5f9;">Ritase</td>
-                                    <td>16 x trip per day</td>
-                                    <td>112,00</td>
-                                    <td>160,00</td>
-                                    <td class="performance-poor">54,00</td>
-                                    <td class="performance-good">111,00</td>
-                                    <td class="performance-good">110,00</td>
-                                    <td class="performance-good">113,00</td>
-                                    <td class="performance-good">101,00</td>
-                                    <td class="performance-average">91,00</td>
-                                    <td>Rit</td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: bold; background: #f1f5f9;">Kapasitas Trucking</td>
-                                    <td>Kapasitas tonase per truk</td>
-                                    <td>30,00</td>
-                                    <td>30,00</td>
-                                    <td>26,15</td>
-                                    <td>25,65</td>
-                                    <td>25,75</td>
-                                    <td>26,11</td>
-                                    <td>25,02</td>
-                                    <td>24,79</td>
-                                    <td>MT</td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: bold; background: #f1f5f9;">Kinerja per jam</td>
-                                    <td>produksi harian / waktu efektif</td>
-                                    <td>210,00</td>
-                                    <td>240,00</td>
-                                    <td>125,43</td>
-                                    <td>172,94</td>
-                                    <td>175,46</td>
-                                    <td>167,62</td>
-                                    <td>129,02</td>
-                                    <td>415,44</td>
-                                    <td>TGH</td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: bold; background: #f1f5f9;">Effective Time</td>
-                                    <td>Effektive time 21 jam / Hari</td>
-                                    <td>21,00</td>
-                                    <td>21,00</td>
-                                    <td>16,24</td>
-                                    <td class="performance-good">17,50</td>
-                                    <td>16,22</td>
-                                    <td>16,40</td>
-                                    <td>19,40</td>
-                                    <td class="performance-poor">4,21</td>
-                                    <td>Jam</td>
-                                </tr>
-                                <tr>
-                                    <td class="highlight-summary" style="font-weight: bold; background: #ddd6fe;">Produktivitas Perpalka/ Day</td>
-                                    <td class="highlight-summary">Per Palka dilayani 2 hiblow truck</td>
-                                    <td class="highlight-summary">672,00</td>
-                                    <td class="highlight-summary">960,00</td>
-                                    <td class="highlight-summary performance-poor">407,40</td>
-                                    <td class="highlight-summary performance-average">588,00</td>
-                                    <td class="highlight-summary performance-average">569,20</td>
-                                    <td class="highlight-summary performance-average">549,80</td>
-                                    <td class="highlight-summary performance-average">500,60</td>
-                                    <td class="highlight-summary performance-poor">349,80</td>
-                                    <td class="highlight-summary">MT</td>
-                                </tr>
-                                <tr>
-                                    <td class="highlight-summary" style="font-weight: bold; background: #ddd6fe;">Produksi per day</td>
-                                    <td class="highlight-summary">5 Palka</td>
-                                    <td class="highlight-summary performance-good">3360,00</td>
-                                    <td class="highlight-summary performance-good">4800,00</td>
-                                    <td class="highlight-summary performance-poor">2037,00</td>
-                                    <td class="highlight-summary performance-good">2940,00</td>
-                                    <td class="highlight-summary performance-good">2846,00</td>
-                                    <td class="highlight-summary performance-good">2749,00</td>
-                                    <td class="highlight-summary performance-average">2503,00</td>
-                                    <td class="highlight-summary performance-poor">1749,00</td>
-                                    <td class="highlight-summary">TSD</td>
-                                </tr>
-                            </tbody>
+    <tr>
+        <td rowspan="2" style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Parameter</td>
+        <td rowspan="2" style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Deskripsi</td>
+        <td rowspan="2" style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">PIC</td>
+        <td rowspan="2" style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Plan</td>
+        <td colspan="6" style="background: #1e40af; color: white; text-align: center; font-weight: bold;">Realisasi</td>
+        <td rowspan="2" style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Sat</td>
+    </tr>
+    <tr>
+        <td style="background: #3b82f6; color: white; font-weight: bold;">20 Juli</td>
+        <td style="background: #3b82f6; color: white; font-weight: bold;">21 Juli</td>
+        <td style="background: #3b82f6; color: white; font-weight: bold;">22 Juli</td>
+        <td style="background: #3b82f6; color: white; font-weight: bold;">23 Juli</td>
+        <td style="background: #3b82f6; color: white; font-weight: bold;">24 Juli</td>
+        <td style="background: #3b82f6; color: white; font-weight: bold;">25 Juli</td>
+    </tr>
+    
+    <!-- A - Cycle Port Operation -->
+    <tr>
+        <td rowspan="7" style="vertical-align: middle; font-weight: bold; background: #f1f5f9;">A - Cycle Port Operation</td>
+        <td>Waktu Gate-in to Plugging</td>
+        <td>SBL</td>
+        <td>14.00</td>
+        <td class="performance-poor">81.41 <span style="color: #ef4444;">(17%)</span></td>
+        <td class="performance-poor">41.95 <span style="color: #ef4444;">(33%)</span></td>
+        <td class="performance-poor">51.00 <span style="color: #ef4444;">(27%)</span></td>
+        <td class="performance-poor">38.52 <span style="color: #ef4444;">(36%)</span></td>
+        <td class="performance-poor">38.31 <span style="color: #ef4444;">(37%)</span></td>
+        <td class="performance-poor">53.46 <span style="color: #ef4444;">(26%)</span></td>
+        <td>Menit</td>
+    </tr>
+    
+    <tr>
+        <td>Proses Plugging Flexible Hose Ke Konnector truck</td>
+        <td>SPMT</td>
+        <td>5.00</td>
+        <td class="performance-good">4.76 <span style="color: #10b981;">(105%)</span></td>
+        <td class="performance-average">7.19 <span style="color: #f59e0b;">(70%)</span></td>
+        <td class="performance-average">7.13 <span style="color: #f59e0b;">(70%)</span></td>
+        <td class="performance-poor">16.69 <span style="color: #ef4444;">(30%)</span></td>
+        <td class="performance-good">4.60 <span style="color: #10b981;">(109%)</span></td>
+        <td class="performance-good">2.86 <span style="color: #10b981;">(175%)</span></td>
+        <td>Menit</td>
+    </tr>
+    
+    <tr>
+        <td>Proses menaikan pressure</td>
+        <td>SBL</td>
+        <td>15.00</td>
+        <td class="performance-good">3.44 <span style="color: #10b981;">(436%)</span></td>
+        <td class="performance-good">4.12 <span style="color: #10b981;">(364%)</span></td>
+        <td class="performance-good">6.67 <span style="color: #10b981;">(225%)</span></td>
+        <td class="performance-good">2.67 <span style="color: #10b981;">(562%)</span></td>
+        <td class="performance-good">3.18 <span style="color: #10b981;">(472%)</span></td>
+        <td class="performance-good">3.97 <span style="color: #10b981;">(378%)</span></td>
+        <td>Menit</td>
+    </tr>
+    
+    <tr>
+        <td>Proses Pemompaan Alumina Ke kapal</td>
+        <td>SBL/SPMT</td>
+        <td>45.00</td>
+        <td class="performance-average">45.50 <span style="color: #f59e0b;">(99%)</span></td>
+        <td class="performance-good">40.12 <span style="color: #10b981;">(112%)</span></td>
+        <td class="performance-good">43.20 <span style="color: #10b981;">(104%)</span></td>
+        <td class="performance-good">38.65 <span style="color: #10b981;">(116%)</span></td>
+        <td class="performance-good">43.94 <span style="color: #10b981;">(102%)</span></td>
+        <td class="performance-average">45.30 <span style="color: #f59e0b;">(99%)</span></td>
+        <td>Menit</td>
+    </tr>
+    
+    <tr>
+        <td>Proses Unplugging Flexible Hose dari Truck</td>
+        <td>SPMT</td>
+        <td>5.00</td>
+        <td class="performance-good">2.63 <span style="color: #10b981;">(190%)</span></td>
+        <td class="performance-good">3.92 <span style="color: #10b981;">(128%)</span></td>
+        <td class="performance-average">6.83 <span style="color: #f59e0b;">(73%)</span></td>
+        <td class="performance-good">3.42 <span style="color: #10b981;">(146%)</span></td>
+        <td class="performance-good">2.27 <span style="color: #10b981;">(220%)</span></td>
+        <td class="performance-good">3.74 <span style="color: #10b981;">(134%)</span></td>
+        <td>Menit</td>
+    </tr>
+    
+    <tr>
+        <td>Waktu Unplugging to Gate-out</td>
+        <td>SBL</td>
+        <td>14.00</td>
+        <td class="performance-good">12.33 <span style="color: #10b981;">(114%)</span></td>
+        <td class="performance-good">13.74 <span style="color: #10b981;">(102%)</span></td>
+        <td class="performance-good">10.94 <span style="color: #10b981;">(128%)</span></td>
+        <td class="performance-good">12.89 <span style="color: #10b981;">(109%)</span></td>
+        <td class="performance-good">9.76 <span style="color: #10b981;">(143%)</span></td>
+        <td class="performance-good">11.45 <span style="color: #10b981;">(122%)</span></td>
+        <td>Menit</td>
+    </tr>
+    
+    <tr>
+        <td class="highlight-total">Total waktu per truk</td>
+        <td class="highlight-total"></td>
+        <td class="highlight-total">98.00</td>
+        <td class="time-danger">150.07 <span style="color: #ef4444;">(65%)</span></td>
+        <td class="time-warning">111.03 <span style="color: #f59e0b;">(88%)</span></td>
+        <td class="time-warning">125.76 <span style="color: #f59e0b;">(78%)</span></td>
+        <td class="time-warning">112.85 <span style="color: #f59e0b;">(87%)</span></td>
+        <td class="time-warning">102.06 <span style="color: #f59e0b;">(96%)</span></td>
+        <td class="time-warning">120.78 <span style="color: #f59e0b;">(81%)</span></td>
+        <td class="highlight-total">Menit</td>
+    </tr>
+    
+    <!-- B - Cycle Silo to Port -->
+    <tr>
+        <td rowspan="4" style="vertical-align: middle; font-weight: bold; background: #f1f5f9;">B - Cycle Silo to Port</td>
+        <td>Antri dan Muat Silo</td>
+        <td>SBL/BAI</td>
+        <td>5.00</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>Menit</td>
+    </tr>
+    
+    <tr>
+        <td>Perjalanan ke pelabuhan (11 km)</td>
+        <td>SBL</td>
+        <td>15.00</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>Menit</td>
+    </tr>
+    
+    <tr>
+        <td>Kembali ke pelabuhan (11 km)</td>
+        <td>SBL</td>
+        <td>10.00</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>Menit</td>
+    </tr>
+    
+    <tr>
+        <td class="highlight-total">Total waktu per truk</td>
+        <td class="highlight-total"></td>
+        <td class="highlight-total">30.00</td>
+        <td class="time-warning">43.30 <span style="color: #f59e0b;">(69%)</span></td>
+        <td class="time-danger">81.76 <span style="color: #ef4444;">(37%)</span></td>
+        <td class="time-danger">74.76 <span style="color: #ef4444;">(40%)</span></td>
+        <td class="time-danger">71.17 <span style="color: #ef4444;">(42%)</span></td>
+        <td class="time-danger">79.09 <span style="color: #ef4444;">(38%)</span></td>
+        <td class="time-danger">82.03 <span style="color: #ef4444;">(37%)</span></td>
+        <td class="highlight-total">Menit</td>
+    </tr>
+    
+    <!-- Summary Rows -->
+    <tr>
+        <td style="font-weight: bold; background: #f1f5f9;">Turn Round Trip</td>
+        <td class="highlight-total">Total Waktu A + B</td>
+        <td class="highlight-total"></td>
+        <td class="highlight-total">128.00</td>
+        <td class="time-danger">193.38 <span style="color: #ef4444;">(66%)</span></td>
+        <td class="time-danger">192.78 <span style="color: #ef4444;">(66%)</span></td>
+        <td class="time-danger">200.53 <span style="color: #ef4444;">(64%)</span></td>
+        <td class="time-danger">184.02 <span style="color: #ef4444;">(70%)</span></td>
+        <td class="time-danger">181.15 <span style="color: #ef4444;">(71%)</span></td>
+        <td class="time-danger">202.81 <span style="color: #ef4444;">(63%)</span></td>
+        <td class="highlight-total">Menit</td>
+    </tr>
+    
+    <tr>
+        <td style="font-weight: bold; background: #f1f5f9;">Trip per day</td>
+        <td>siklus per hari per truk</td>
+        <td></td>
+        <td>10.00</td>
+        <td class="performance-poor">3.60 <span style="color: #ef4444;">(36%)</span></td>
+        <td class="performance-good">7.40 <span style="color: #10b981;">(74%)</span></td>
+        <td class="performance-good">7.33 <span style="color: #10b981;">(73%)</span></td>
+        <td class="performance-good">7.53 <span style="color: #10b981;">(75%)</span></td>
+        <td class="performance-good">7.21 <span style="color: #10b981;">(72%)</span></td>
+        <td class="performance-average">5.35 <span style="color: #f59e0b;">(54%)</span></td>
+        <td>Trip</td>
+    </tr>
+    
+    <tr>
+        <td style="font-weight: bold; background: #f1f5f9;">Kebutuhan truk/hari</td>
+        <td>3 shift</td>
+        <td>BAI</td>
+        <td>16.00</td>
+        <td class="performance-average">15.00 <span style="color: #f59e0b;">(94%)</span></td>
+        <td class="performance-average">15.00 <span style="color: #f59e0b;">(94%)</span></td>
+        <td class="performance-average">15.00 <span style="color: #f59e0b;">(94%)</span></td>
+        <td class="performance-average">15.00 <span style="color: #f59e0b;">(94%)</span></td>
+        <td class="performance-poor">14.00 <span style="color: #ef4444;">(88%)</span></td>
+        <td class="performance-poor">17.00 <span style="color: #ef4444;">(106%)</span></td>
+        <td>Truk</td>
+    </tr>
+    
+    <tr>
+        <td style="font-weight: bold; background: #f1f5f9;">Ritase</td>
+        <td>16 x trip per day</td>
+        <td></td>
+        <td>160.00</td>
+        <td class="performance-poor">54.00 <span style="color: #ef4444;">(34%)</span></td>
+        <td class="performance-good">111.00 <span style="color: #10b981;">(69%)</span></td>
+        <td class="performance-good">110.00 <span style="color: #10b981;">(69%)</span></td>
+        <td class="performance-good">113.00 <span style="color: #10b981;">(71%)</span></td>
+        <td class="performance-good">101.00 <span style="color: #10b981;">(63%)</span></td>
+        <td class="performance-average">91.00 <span style="color: #f59e0b;">(57%)</span></td>
+        <td>Rit</td>
+    </tr>
+    
+    <tr>
+        <td style="font-weight: bold; background: #f1f5f9;">Kapasitas Trucking</td>
+        <td>Kapasitas tonase per truk</td>
+        <td>BAI</td>
+        <td>30.00</td>
+        <td class="performance-average">26.15 <span style="color: #f59e0b;">(87%)</span></td>
+        <td class="performance-average">25.65 <span style="color: #f59e0b;">(86%)</span></td>
+        <td class="performance-average">25.75 <span style="color: #f59e0b;">(86%)</span></td>
+        <td class="performance-average">26.11 <span style="color: #f59e0b;">(87%)</span></td>
+        <td class="performance-average">25.02 <span style="color: #f59e0b;">(83%)</span></td>
+        <td class="performance-average">24.79 <span style="color: #f59e0b;">(83%)</span></td>
+        <td>MT</td>
+    </tr>
+    
+    <tr>
+        <td style="font-weight: bold; background: #f1f5f9;">Kinerja per jam</td>
+        <td>produksi harian / waktu efektif</td>
+        <td></td>
+        <td>300.00</td>
+        <td class="performance-poor">125.43 <span style="color: #ef4444;">(42%)</span></td>
+        <td class="performance-average">172.94 <span style="color: #f59e0b;">(58%)</span></td>
+        <td class="performance-average">175.46 <span style="color: #f59e0b;">(58%)</span></td>
+        <td class="performance-average">167.62 <span style="color: #f59e0b;">(56%)</span></td>
+        <td class="performance-average">129.02 <span style="color: #f59e0b;">(43%)</span></td>
+        <td class="performance-average">415.44 <span style="color: #f59e0b;">(138%)</span></td>
+        <td>TGH</td>
+    </tr>
+    
+    <tr>
+        <td style="font-weight: bold; background: #f1f5f9;">Effective Time</td>
+        <td>Effektive time 21 jam / Hari</td>
+        <td></td>
+        <td>20.00</td>
+        <td class="performance-average">16.24 <span style="color: #f59e0b;">(81%)</span></td>
+        <td class="performance-average">17.50 <span style="color: #f59e0b;">(88%)</span></td>
+        <td class="performance-average">16.22 <span style="color: #f59e0b;">(81%)</span></td>
+        <td class="performance-average">16.40 <span style="color: #f59e0b;">(82%)</span></td>
+        <td class="performance-average">19.40 <span style="color: #f59e0b;">(97%)</span></td>
+        <td class="performance-poor">4.21 <span style="color: #ef4444;">(21%)</span></td>
+        <td>Jam</td>
+    </tr>
+    
+    <tr>
+        <td class="highlight-summary" style="font-weight: bold; background: #ddd6fe;">Produktivitas Perpalka/ Day</td>
+        <td class="highlight-summary">Per Palka dilayani 2 hiblow truck</td>
+        <td class="highlight-summary"></td>
+        <td class="highlight-summary">960.00</td>
+        <td class="highlight-summary performance-poor">407.40 <span style="color: #ef4444;">(42%)</span></td>
+        <td class="highlight-summary performance-average">588.00 <span style="color: #f59e0b;">(61%)</span></td>
+        <td class="highlight-summary performance-average">569.20 <span style="color: #f59e0b;">(59%)</span></td>
+        <td class="highlight-summary performance-average">549.80 <span style="color: #f59e0b;">(57%)</span></td>
+        <td class="highlight-summary performance-average">500.60 <span style="color: #f59e0b;">(52%)</span></td>
+        <td class="highlight-summary performance-poor">349.80 <span style="color: #ef4444;">(36%)</span></td>
+        <td class="highlight-summary">MT</td>
+    </tr>
+    
+    <tr>
+        <td class="highlight-summary" style="font-weight: bold; background: #ddd6fe;">Produksi per day</td>
+        <td class="highlight-summary">5 Palka</td>
+        <td class="highlight-summary"></td>
+        <td class="highlight-summary">4800.00</td>
+        <td class="highlight-summary performance-poor">2037.00 <span style="color: #ef4444;">(42%)</span></td>
+        <td class="highlight-summary performance-good">2940.00 <span style="color: #10b981;">(61%)</span></td>
+        <td class="highlight-summary performance-good">2846.00 <span style="color: #10b981;">(59%)</span></td>
+        <td class="highlight-summary performance-good">2749.00 <span style="color: #10b981;">(57%)</span></td>
+        <td class="highlight-summary performance-average">2503.00 <span style="color: #f59e0b;">(52%)</span></td>
+        <td class="highlight-summary performance-poor">1749.00 <span style="color: #ef4444;">(36%)</span></td>
+        <td class="highlight-summary">TSD</td>
+    </tr>
+</tbody>
+                            
                         </table>
                     </div>
                 </div>
 
-                <!-- Summary Performance Table -->
+               
+                <!-- Drilling Operations Table -->
                 <div class="table-container">
                     <div class="table-header">
-                        <div class="table-title">📊 Performance Harian: Plan vs Realisasi</div>
+                        <div class="table-title">🛢️ Booster Operations Data</div>
                     </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Tanggal</th>
-                                <th>Trip/Day</th>
-                                <th>Ritase</th>
-                                <th>Kapasitas (Ton)</th>
-                                <th>Produktivitas (MT)</th>
-                                <th>Produksi (TSD)</th>
-                                <th>Effective Time</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>TARGET</strong></td>
-                                <td>7.00</td>
-                                <td>112</td>
-                                <td>30.00</td>
-                                <td>672</td>
-                                <td class="performance-good">3,360</td>
-                                <td>15.00</td>
-                            </tr>
-                            <tr>
-                                <td><strong>20 Juli</strong></td>
-                                <td>3.60 <span style="color: #ef4444;">(51%)</span></td>
-                                <td>79 <span style="color: #f59e0b;">(71%)</span></td>
-                                <td>26.15 <span style="color: #10b981;">(87%)</span></td>
-                                <td>407 <span style="color: #ef4444;">(61%)</span></td>
-                                <td class="performance-poor">2,037 (61%)</td>
-                                <td>16.24 <span style="color: #10b981;">(108%)</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>21 Juli</strong></td>
-                                <td>7.40 <span style="color: #10b981;">(106%)</span></td>
-                                <td>111 <span style="color: #10b981;">(99%)</span></td>
-                                <td>25.64 <span style="color: #f59e0b;">(85%)</span></td>
-                                <td>588 <span style="color: #10b981;">(88%)</span></td>
-                                <td class="performance-good">2,940 (87%)</td>
-                                <td>1.57 <span style="color: #ef4444;">(10%)</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>22 Juli</strong></td>
-                                <td>7.30 <span style="color: #10b981;">(104%)</span></td>
-                                <td>110 <span style="color: #10b981;">(98%)</span></td>
-                                <td>25.75 <span style="color: #f59e0b;">(86%)</span></td>
-                                <td>569 <span style="color: #f59e0b;">(85%)</span></td>
-                                <td class="performance-good">2,846 (85%)</td>
-                                <td>16.22 <span style="color: #10b981;">(108%)</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>23 Juli</strong></td>
-                                <td>7.50 <span style="color: #10b981;">(107%)</span></td>
-                                <td>113 <span style="color: #10b981;">(101%)</span></td>
-                                <td>26.10 <span style="color: #f59e0b;">(87%)</span></td>
-                                <td>550 <span style="color: #f59e0b;">(82%)</span></td>
-                                <td class="performance-good">2,749 (82%)</td>
-                                <td>16.40 <span style="color: #10b981;">(109%)</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>24 Juli</strong></td>
-                                <td>7.20 <span style="color: #10b981;">(103%)</span></td>
-                                <td>101 <span style="color: #f59e0b;">(90%)</span></td>
-                                <td>25.92 <span style="color: #f59e0b;">(86%)</span></td>
-                                <td>501 <span style="color: #f59e0b;">(75%)</span></td>
-                                <td class="performance-average">2,503 (74%)</td>
-                                <td>19.40 <span style="color: #10b981;">(129%)</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>25 Juli</strong></td>
-                                <td>5.30 <span style="color: #f59e0b;">(76%)</span></td>
-                                <td>91 <span style="color: #f59e0b;">(81%)</span></td>
-                                <td>24.79 <span style="color: #f59e0b;">(83%)</span></td>
-                                <td>350 <span style="color: #ef4444;">(52%)</span></td>
-                                <td class="performance-poor">1,749 (52%)</td>
-                                <td>4.21 <span style="color: #ef4444;">(28%)</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="drilling-filter-section">
+                        <div class="drilling-filter-group">
+                            <span class="drilling-filter-label">Booster Pump:</span>
+                            <div class="drilling-filter-buttons">
+                                <button class="drilling-filter-btn active" onclick="filterDrillingData('all')">All</button>
+                                <button class="drilling-filter-btn" onclick="filterDrillingData('booster')">Booster</button>
+                                <button class="drilling-filter-btn" onclick="filterDrillingData('non-booster')">Non Booster</button>
+                            </div>
+                        </div>
+                    </div>
+					
+				
+					
+					
+					<!-- Add this right after the .drilling-filter-section div -->
+<div class="stats-grid" style="margin-top: 15px; margin-bottom: 20px;">
+    <div class="stat-card">
+        <div class="stat-title">Total Trucks</div>
+        <div class="stat-value" id="drillingTotalPlatforms">0</div>
+        <div class="stat-subtitle">Active trucks</div>
+        
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-title">Total Cycles</div>
+        <div class="stat-value" id="drillingTotalCycles">0</div>
+        <div class="stat-subtitle">Completed cycles</div>
+        
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-title">Avg Netto</div>
+        <div class="stat-value" id="drillingAvgNetto">0</div>
+        <div class="stat-subtitle">Tons per cycle</div>
+        
+    </div>
+    
+    
+    </div>
+</div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" id="drillingTable">
+                            <thead>
+                                <tr>
+                                    <th style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Plat</th>
+                                    <th style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Netto</th>
+                                    <th style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Rit</th>
+                                    <th style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Gate-in to Plug</th>
+                                    <th style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Proses Plugging</th>
+                                    <th style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Naik Pressure</th>
+                                    <th style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Durasi Muat</th>
+                                    <th style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Proses Unplugging</th>
+                                    <th style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Unplugging to Gateout</th>
+                                    <th style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Port Operation</th>
+                                    <th style="vertical-align: middle; font-weight: bold; background: #334155; color: white;">Silo to Port</th>
+                                </tr>
+                            </thead>
+                            <tbody id="drillingTableBody">
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+	
+	
+	
         // Data trucking per hari
         const truckData = {
             day1: {
@@ -910,6 +1005,69 @@
             { day: '24 Juli', produksi: 2503, target: 3360, ritase: 101, targetRitase: 112, produktivitas: 501, targetProduktivitas: 672, kapasitas: 25.92, trip: 7.20 },
             { day: '25 Juli', produksi: 1749, target: 3360, ritase: 91, targetRitase: 112, produktivitas: 350, targetProduktivitas: 672, kapasitas: 24.79, trip: 5.30 }
         ];
+
+        // Drilling Operations Data
+        const allDrillingData = [
+            {plat_no: "A9568U", netto: 30.62, siklus: 31, gate_to_plug: "0:40:45", proses_plugging: "0:05:25", naik_pressure: "0:05:25", durasi_muat: "0:35:50", proses_unplugging: "0:05:04", unplugging_to_gateout: "0:12:19", port_operation: "1:56:27", silo_to_port: "2:09:34"},
+    {plat_no: "B9051IB", netto: 27.36, siklus: 34, gate_to_plug: "0:46:18", proses_plugging: "0:11:11", naik_pressure: "0:06:51", durasi_muat: "0:36:25", proses_unplugging: "0:03:56", unplugging_to_gateout: "0:15:37", port_operation: "2:07:41", silo_to_port: "1:37:48"},
+    {plat_no: "B9222UDA", netto: 26.92, siklus: 40, gate_to_plug: "0:54:08", proses_plugging: "0:12:05", naik_pressure: "0:04:35", durasi_muat: "1:02:56", proses_unplugging: "0:02:57", unplugging_to_gateout: "0:10:02", port_operation: "2:04:54", silo_to_port: "1:08:29"},
+    {plat_no: "B9281GCB", netto: 27.35, siklus: 21, gate_to_plug: "0:35:03", proses_plugging: "0:04:17", naik_pressure: "0:03:26", durasi_muat: "0:46:09", proses_unplugging: "0:03:11", unplugging_to_gateout: "0:15:06", port_operation: "2:21:29", silo_to_port: "1:09:37"},
+    {plat_no: "B9283XA", netto: 30.33, siklus: 36, gate_to_plug: "0:45:17", proses_plugging: "0:10:03", naik_pressure: "0:03:07", durasi_muat: "0:43:13", proses_unplugging: "0:05:57", unplugging_to_gateout: "0:10:35", port_operation: "2:07:40", silo_to_port: "1:19:48"},
+    {plat_no: "B9284GCB", netto: 27.13, siklus: 39, gate_to_plug: "0:45:31", proses_plugging: "0:03:06", naik_pressure: "0:02:52", durasi_muat: "0:27:12", proses_unplugging: "0:02:57", unplugging_to_gateout: "0:21:40", port_operation: "1:55:35", silo_to_port: "1:22:32"},
+    {plat_no: "B9732UDO", netto: 28.09, siklus: 38, gate_to_plug: "0:48:19", proses_plugging: "0:12:03", naik_pressure: "0:05:47", durasi_muat: "0:37:02", proses_unplugging: "0:03:00", unplugging_to_gateout: "0:17:11", port_operation: "2:05:51", silo_to_port: "1:22:13"},
+    {plat_no: "B9878UFV", netto: 21.96, siklus: 44, gate_to_plug: "0:44:48", proses_plugging: "0:04:33", naik_pressure: "0:03:19", durasi_muat: "0:36:56", proses_unplugging: "0:03:03", unplugging_to_gateout: "0:09:52", port_operation: "1:46:25", silo_to_port: "1:07:16"},
+    {plat_no: "B9917UFV", netto: 23.90, siklus: 41, gate_to_plug: "0:45:13", proses_plugging: "0:04:03", naik_pressure: "0:05:09", durasi_muat: "0:54:34", proses_unplugging: "0:06:26", unplugging_to_gateout: "0:07:51", port_operation: "2:03:18", silo_to_port: "1:06:32"},
+    {plat_no: "B9925UFV", netto: 24.31, siklus: 41, gate_to_plug: "0:45:35", proses_plugging: "0:02:44", naik_pressure: "0:03:04", durasi_muat: "0:46:53", proses_unplugging: "0:03:01", unplugging_to_gateout: "0:11:12", port_operation: "2:02:53", silo_to_port: "1:07:40"},
+    {plat_no: "B9939BDH", netto: 27.56, siklus: 7, gate_to_plug: "0:40:17", proses_plugging: "0:02:26", naik_pressure: "0:04:17", durasi_muat: "0:41:09", proses_unplugging: "0:03:43", unplugging_to_gateout: "0:11:00", port_operation: "1:42:51", silo_to_port: "0:59:34"},
+    {plat_no: "B9948UFV", netto: 22.32, siklus: 41, gate_to_plug: "0:57:45", proses_plugging: "0:07:28", naik_pressure: "0:02:59", durasi_muat: "0:38:38", proses_unplugging: "0:02:40", unplugging_to_gateout: "0:08:48", port_operation: "1:59:47", silo_to_port: "1:07:12"},
+    {plat_no: "B9956UFV", netto: 22.58, siklus: 38, gate_to_plug: "0:57:00", proses_plugging: "0:08:17", naik_pressure: "0:03:28", durasi_muat: "0:40:39", proses_unplugging: "0:03:52", unplugging_to_gateout: "0:08:08", port_operation: "2:17:57", silo_to_port: "1:04:51"},
+    {plat_no: "BA8782RO", netto: 14.58, siklus: 1, gate_to_plug: "0:19:00", proses_plugging: "0:02:00", naik_pressure: "0:22:00", durasi_muat: "0:27:00", proses_unplugging: "0:13:00", unplugging_to_gateout: "0:18:00", port_operation: "1:41:00", silo_to_port: "0:00:00"},
+    {plat_no: "BA8785RO", netto: 22.49, siklus: 1, gate_to_plug: "0:14:00", proses_plugging: "0:03:00", naik_pressure: "0:02:00", durasi_muat: "1:02:00", proses_unplugging: "0:06:00", unplugging_to_gateout: "1:00:00", port_operation: "2:27:00", silo_to_port: "0:00:00"},
+    {plat_no: "BE8019ABU", netto: 22.53, siklus: 40, gate_to_plug: "0:50:23", proses_plugging: "0:13:06", naik_pressure: "0:03:26", durasi_muat: "0:42:26", proses_unplugging: "0:06:03", unplugging_to_gateout: "0:11:48", port_operation: "2:13:21", silo_to_port: "1:09:59"},
+    {plat_no: "BE8267ACU", netto: 25.44, siklus: 44, gate_to_plug: "0:48:37", proses_plugging: "0:08:44", naik_pressure: "0:04:34", durasi_muat: "0:39:29", proses_unplugging: "0:03:40", unplugging_to_gateout: "0:08:00", port_operation: "2:02:05", silo_to_port: "1:01:16"},
+    {plat_no: "BE8297ACU", netto: 25.86, siklus: 43, gate_to_plug: "0:48:13", proses_plugging: "0:08:21", naik_pressure: "0:03:04", durasi_muat: "0:43:17", proses_unplugging: "0:03:13", unplugging_to_gateout: "0:11:45", port_operation: "2:00:10", silo_to_port: "1:02:52"}
+];
+
+        const boosterDrillingData = [
+    {plat_no: "A9568U", netto: 30.69, siklus: 16, gate_to_plug: "0:28:15", proses_plugging: "0:04:08", naik_pressure: "0:05:31", durasi_muat: "0:34:00", proses_unplugging: "0:06:11", unplugging_to_gateout: "0:10:15", port_operation: "1:52:08", silo_to_port: "1:57:04"},
+    {plat_no: "B9051IB", netto: 27.36, siklus: 34, gate_to_plug: "0:46:18", proses_plugging: "0:11:11", naik_pressure: "0:06:51", durasi_muat: "0:36:25", proses_unplugging: "0:03:56", unplugging_to_gateout: "0:15:37", port_operation: "2:07:41", silo_to_port: "1:37:48"},
+    {plat_no: "B9222UDA", netto: 26.84, siklus: 39, gate_to_plug: "0:54:45", proses_plugging: "0:12:20", naik_pressure: "0:04:38", durasi_muat: "1:03:11", proses_unplugging: "0:02:52", unplugging_to_gateout: "0:10:09", port_operation: "2:05:35", silo_to_port: "1:09:22"},
+    {plat_no: "B9281GCB", netto: 27.49, siklus: 19, gate_to_plug: "0:37:13", proses_plugging: "0:04:22", naik_pressure: "0:03:47", durasi_muat: "0:46:44", proses_unplugging: "0:03:16", unplugging_to_gateout: "0:16:06", port_operation: "2:29:22", silo_to_port: "1:12:41"},
+    {plat_no: "B9283XA", netto: 29.77, siklus: 17, gate_to_plug: "0:34:53", proses_plugging: "0:13:56", naik_pressure: "0:03:00", durasi_muat: "0:45:07", proses_unplugging: "0:05:18", unplugging_to_gateout: "0:11:46", port_operation: "2:07:21", silo_to_port: "1:27:11"},
+    {plat_no: "B9284GCB", netto: 27.13, siklus: 39, gate_to_plug: "0:45:31", proses_plugging: "0:03:06", naik_pressure: "0:02:52", durasi_muat: "0:27:12", proses_unplugging: "0:02:57", unplugging_to_gateout: "0:21:40", port_operation: "1:55:35", silo_to_port: "1:22:32"},
+    {plat_no: "B9732UDO", netto: 28.04, siklus: 37, gate_to_plug: "0:48:52", proses_plugging: "0:12:18", naik_pressure: "0:05:55", durasi_muat: "0:37:45", proses_unplugging: "0:03:05", unplugging_to_gateout: "0:15:41", port_operation: "2:06:16", silo_to_port: "1:23:03"},
+    {plat_no: "B9878UFV", netto: 21.76, siklus: 32, gate_to_plug: "0:37:30", proses_plugging: "0:04:41", naik_pressure: "0:03:36", durasi_muat: "0:35:02", proses_unplugging: "0:03:08", unplugging_to_gateout: "0:08:24", port_operation: "1:37:53", silo_to_port: "1:05:30"},
+    {plat_no: "B9917UFV", netto: 23.85, siklus: 27, gate_to_plug: "0:51:11", proses_plugging: "0:04:20", naik_pressure: "0:03:16", durasi_muat: "0:56:18", proses_unplugging: "0:08:40", unplugging_to_gateout: "0:07:44", port_operation: "2:11:49", silo_to_port: "1:04:47"},
+    {plat_no: "B9925UFV", netto: 23.82, siklus: 25, gate_to_plug: "0:38:02", proses_plugging: "0:02:34", naik_pressure: "0:03:02", durasi_muat: "0:42:58", proses_unplugging: "0:02:53", unplugging_to_gateout: "0:11:41", port_operation: "1:58:24", silo_to_port: "1:04:19"},
+    {plat_no: "B9939BDH", netto: 27.56, siklus: 7, gate_to_plug: "0:40:17", proses_plugging: "0:02:26", naik_pressure: "0:04:17", durasi_muat: "0:41:09", proses_unplugging: "0:03:43", unplugging_to_gateout: "0:11:00", port_operation: "1:42:51", silo_to_port: "0:59:34"},
+    {plat_no: "B9948UFV", netto: 22.38, siklus: 28, gate_to_plug: "0:55:00", proses_plugging: "0:03:56", naik_pressure: "0:02:54", durasi_muat: "0:39:21", proses_unplugging: "0:02:56", unplugging_to_gateout: "0:08:39", port_operation: "1:55:17", silo_to_port: "1:10:17"},
+    {plat_no: "B9956UFV", netto: 22.15, siklus: 26, gate_to_plug: "0:50:18", proses_plugging: "0:09:39", naik_pressure: "0:04:09", durasi_muat: "0:41:53", proses_unplugging: "0:03:53", unplugging_to_gateout: "0:09:48", port_operation: "2:14:51", silo_to_port: "0:57:53"},
+    {plat_no: "BA8782RO", netto: 14.58, siklus: 1, gate_to_plug: "0:19:00", proses_plugging: "0:02:00", naik_pressure: "0:22:00", durasi_muat: "0:27:00", proses_unplugging: "0:13:00", unplugging_to_gateout: "0:18:00", port_operation: "1:41:00", silo_to_port: "0"},
+    {plat_no: "BA8785RO", netto: 22.49, siklus: 1, gate_to_plug: "0:14:00", proses_plugging: "0:03:00", naik_pressure: "0:02:00", durasi_muat: "1:02:00", proses_unplugging: "0:06:00", unplugging_to_gateout: "1:00:00", port_operation: "2:27:00", silo_to_port: "0"},
+    {plat_no: "BE8019ABU", netto: 22.24, siklus: 28, gate_to_plug: "0:41:06", proses_plugging: "0:08:39", naik_pressure: "0:03:36", durasi_muat: "0:43:02", proses_unplugging: "0:05:15", unplugging_to_gateout: "0:12:36", port_operation: "2:03:34", silo_to_port: "1:14:54"},
+    {plat_no: "BE8267ACU", netto: 25.66, siklus: 35, gate_to_plug: "0:43:19", proses_plugging: "0:10:19", naik_pressure: "0:05:02", durasi_muat: "0:41:09", proses_unplugging: "0:04:09", unplugging_to_gateout: "0:08:34", port_operation: "2:01:27", silo_to_port: "1:05:02"},
+    {plat_no: "BE8297ACU", netto: 25.91, siklus: 36, gate_to_plug: "0:44:52", proses_plugging: "0:09:23", naik_pressure: "0:02:38", durasi_muat: "0:44:30", proses_unplugging: "0:03:20", unplugging_to_gateout: "0:12:27", port_operation: "1:59:55", silo_to_port: "1:01:22"},
+    
+];
+
+        const nonBoosterDrillingData = [
+    {plat_no: "A9568U", netto: 30.54, siklus: 15, gate_to_plug: "0:54:04", proses_plugging: "0:06:48", naik_pressure: "0:05:20", durasi_muat: "0:37:48", proses_unplugging: "0:03:52", unplugging_to_gateout: "0:14:32", port_operation: "2:01:04", silo_to_port: "2:23:51"},
+    {plat_no: "B9222UDA", netto: 30.00, siklus: 1, gate_to_plug: "0:30:00", proses_plugging: "0:02:00", naik_pressure: "0:02:00", durasi_muat: "0:53:00", proses_unplugging: "0:06:00", unplugging_to_gateout: "0:05:00", port_operation: "1:38:00", silo_to_port: "0:34:00"},
+    {plat_no: "B9281GCB", netto: 25.98, siklus: 2, gate_to_plug: "0:14:30", proses_plugging: "0:03:30", naik_pressure: "0:00:00", durasi_muat: "0:40:30", proses_unplugging: "0:02:30", unplugging_to_gateout: "0:05:30", port_operation: "1:06:30", silo_to_port: "0:40:30"},
+    {plat_no: "B9283XA", netto: 30.83, siklus: 19, gate_to_plug: "0:54:35", proses_plugging: "0:06:35", naik_pressure: "0:03:13", durasi_muat: "0:41:32", proses_unplugging: "0:06:32", unplugging_to_gateout: "0:09:32", port_operation: "2:07:57", silo_to_port: "1:13:13"},
+    {plat_no: "B9732UDO", netto: 29.90, siklus: 1, gate_to_plug: "0:28:00", proses_plugging: "0:03:00", naik_pressure: "0:01:00", durasi_muat: "0:10:00", proses_unplugging: "0:00:00", unplugging_to_gateout: "1:13:00", port_operation: "1:50:00", silo_to_port: "0:51:00"},
+    {plat_no: "B9878UFV", netto: 22.49, siklus: 12, gate_to_plug: "1:04:15", proses_plugging: "0:04:10", naik_pressure: "0:02:35", durasi_muat: "0:42:00", proses_unplugging: "0:02:50", unplugging_to_gateout: "0:13:45", port_operation: "2:09:10", silo_to_port: "1:12:00"},
+    {plat_no: "B9917UFV", netto: 23.99, siklus: 14, gate_to_plug: "0:33:43", proses_plugging: "0:03:30", naik_pressure: "0:08:47", durasi_muat: "0:51:13", proses_unplugging: "0:02:09", unplugging_to_gateout: "0:08:04", port_operation: "1:46:51", silo_to_port: "1:09:56"},
+    {plat_no: "B9925UFV", netto: 25.08, siklus: 16, gate_to_plug: "0:57:23", proses_plugging: "0:03:00", naik_pressure: "0:03:08", durasi_muat: "0:53:00", proses_unplugging: "0:03:15", unplugging_to_gateout: "0:10:26", port_operation: "2:09:53", silo_to_port: "1:12:53"},
+    {plat_no: "B9948UFV", netto: 22.20, siklus: 13, gate_to_plug: "1:03:42", proses_plugging: "0:15:05", naik_pressure: "0:03:09", durasi_muat: "0:37:05", proses_unplugging: "0:02:05", unplugging_to_gateout: "0:09:09", port_operation: "2:09:28", silo_to_port: "1:00:32"},
+    {plat_no: "B9956UFV", netto: 23.51, siklus: 12, gate_to_plug: "1:11:30", proses_plugging: "0:05:20", naik_pressure: "0:02:00", durasi_muat: "0:38:00", proses_unplugging: "0:03:50", unplugging_to_gateout: "0:04:30", port_operation: "2:24:40", silo_to_port: "1:19:55"},
+    {plat_no: "BE8019ABU", netto: 23.21, siklus: 12, gate_to_plug: "1:12:00", proses_plugging: "0:23:30", naik_pressure: "0:03:00", durasi_muat: "0:41:00", proses_unplugging: "0:07:55", unplugging_to_gateout: "0:09:55", port_operation: "2:36:10", silo_to_port: "0:58:30"},
+    {plat_no: "BE8267ACU", netto: 24.60, siklus: 9, gate_to_plug: "1:09:13", proses_plugging: "0:02:33", naik_pressure: "0:02:47", durasi_muat: "0:33:00", proses_unplugging: "0:01:47", unplugging_to_gateout: "0:05:47", port_operation: "2:04:33", silo_to_port: "0:46:40"},
+    {plat_no: "BE8297ACU", netto: 25.64, siklus: 7, gate_to_plug: "1:05:26", proses_plugging: "0:03:00", naik_pressure: "0:05:17", durasi_muat: "0:37:00", proses_unplugging: "0:02:34", unplugging_to_gateout: "0:08:09", port_operation: "2:01:26", silo_to_port: "1:10:34"},
+    ];
+
+        let currentDrillingFilter = 'all';
+        let currentDrillingData = allDrillingData;
 
         // Calculate truck averages
         function calculateTruckAverages() {
@@ -1190,6 +1348,147 @@
                 cellTotal.innerHTML = `<strong>${truck.totalSiklus}</strong>`;
             });
         }
+      
+      
+    // Update drilling stats - PERBAIKAN
+function updateDrillingStats() {
+    const totalPlatforms = currentDrillingData.length;
+    const totalCycles = currentDrillingData.reduce((sum, row) => sum + row.siklus, 0);
+    
+    // Hitung weighted average netto berdasarkan siklus (sama seperti di tabel)
+    const totalNetto = currentDrillingData.reduce((sum, row) => sum + (row.netto * row.siklus), 0);
+    const avgNetto = totalCycles > 0 ? (totalNetto / totalCycles).toFixed(2) : 0;
+    
+    document.getElementById('drillingTotalPlatforms').textContent = totalPlatforms;
+    document.getElementById('drillingTotalCycles').textContent = totalCycles;
+    document.getElementById('drillingAvgNetto').textContent = avgNetto;
+    document.getElementById('drillingCurrentFilter').textContent = 
+        currentDrillingFilter === 'all' ? 'All' : 
+        currentDrillingFilter === 'booster' ? 'Booster' : 'Non Booster';
+  
+    
+}
+      
+     
+
+// Filter drilling data
+function filterDrillingData(type) {
+    // Update active button
+    document.querySelectorAll('.drilling-filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Find and activate the clicked button
+    const buttons = document.querySelectorAll('.drilling-filter-btn');
+    buttons.forEach(btn => {
+        if ((type === 'all' && btn.textContent === 'All') ||
+            (type === 'booster' && btn.textContent === 'Booster') ||
+            (type === 'non-booster' && btn.textContent === 'Non Booster')) {
+            btn.classList.add('active');
+        }
+    });
+
+    // Set current filter and data
+    currentDrillingFilter = type;
+    if (type === 'all') {
+        currentDrillingData = allDrillingData;
+    } else if (type === 'booster') {
+        currentDrillingData = boosterDrillingData;
+    } else {
+        currentDrillingData = nonBoosterDrillingData;
+    }
+
+    // Update table and stats
+    generateDrillingTable();
+    updateDrillingStats(); // Pastikan ini dipanggil
+}
+      
+      // Fungsi untuk mengkonversi waktu HH:MM:SS ke detik
+function timeToSeconds(timeStr) {
+    if (!timeStr || timeStr === '0') return 0;
+    const parts = timeStr.split(':');
+    return (+parts[0]) * 3600 + (+parts[1]) * 60 + (+parts[2] || 0);
+}
+
+// Fungsi untuk mengkonversi detik ke format HH:MM:SS
+function secondsToTime(seconds) {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+       // Generate drilling operations table
+function generateDrillingTable() {
+    const tbody = document.getElementById('drillingTableBody');
+    tbody.innerHTML = '';
+
+    // Add data rows
+    currentDrillingData.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="plat-no">${row.plat_no}</td>
+            <td>${row.netto.toFixed(2)}</td>
+            <td>${row.siklus}</td>
+            <td>${row.gate_to_plug}</td>
+            <td>${row.proses_plugging}</td>
+            <td>${row.naik_pressure}</td>
+            <td>${row.durasi_muat}</td>
+            <td>${row.proses_unplugging}</td>
+            <td>${row.unplugging_to_gateout}</td>
+            <td>${row.port_operation}</td>
+            <td>${row.silo_to_port}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    // Calculate averages - PERBAIKAN
+    if (currentDrillingData.length > 0) {
+        // Hitung total siklus (ritase)
+        const totalSiklus = currentDrillingData.reduce((sum, row) => sum + row.siklus, 0);
+        
+        // Hitung rata-rata netto berbobot (dikali siklus)
+        const totalNetto = currentDrillingData.reduce((sum, row) => sum + (row.netto * row.siklus), 0);
+        const avgNetto = totalNetto / totalSiklus;
+        
+        // Hitung rata-rata waktu berbobot
+        const timeFields = [
+            'gate_to_plug', 'proses_plugging', 'naik_pressure', 
+            'durasi_muat', 'proses_unplugging', 'unplugging_to_gateout',
+            'port_operation', 'silo_to_port'
+        ];
+        
+        const avgTimes = {};
+        timeFields.forEach(field => {
+            let totalSeconds = 0;
+            currentDrillingData.forEach(row => {
+                const timeInSeconds = timeToSeconds(row[field]);
+                totalSeconds += timeInSeconds * row.siklus; // Kalikan dengan jumlah siklus
+            });
+            avgTimes[field] = secondsToTime(Math.round(totalSeconds / totalSiklus));
+        });
+
+        // Add average row
+        const avgRow = document.createElement('tr');
+        avgRow.className = 'average-row';
+        avgRow.innerHTML = `
+            <td><strong>Average</strong></td>
+            <td><strong>${avgNetto.toFixed(2)}</strong></td>
+            <td><strong>${totalSiklus}</strong></td>
+            <td><strong>${avgTimes.gate_to_plug}</strong></td>
+            <td><strong>${avgTimes.proses_plugging}</strong></td>
+            <td><strong>${avgTimes.naik_pressure}</strong></td>
+            <td><strong>${avgTimes.durasi_muat}</strong></td>
+            <td><strong>${avgTimes.proses_unplugging}</strong></td>
+            <td><strong>${avgTimes.unplugging_to_gateout}</strong></td>
+            <td><strong>${avgTimes.port_operation}</strong></td>
+            <td><strong>${avgTimes.silo_to_port}</strong></td>
+        `;
+        tbody.appendChild(avgRow);
+    }
+
+        
+        }
 
         // Tab functionality
         function showTab(tabName) {
@@ -1210,11 +1509,15 @@
             event.target.classList.add('active');
         }
 
+      
+      
         // Initialize everything when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            initCharts();
-            generateTruckTable();
-        });
+    initCharts();
+    generateTruckTable();
+    generateDrillingTable();
+    updateDrillingStats(); // Tambahkan ini
+});
     </script>
 </body>
 </html>
